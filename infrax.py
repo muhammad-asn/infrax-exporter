@@ -5,12 +5,12 @@ from service.java import JavaService
 from service.python import PythonService
 from service.nodejs import NodeJsService
 from prometheus_client import (
-    Gauge,
     start_http_server,
     REGISTRY,
     GC_COLLECTOR,
     PLATFORM_COLLECTOR,
     PROCESS_COLLECTOR,
+    Info,
 )
 
 import time
@@ -34,16 +34,17 @@ class InfraX_Exporter:
         if self.service is None:
             raise NameError("Service is not recognized.")
 
-        self.service_info = Gauge(
-            f"{self.name}_service_info",
-            f"{self.name.title()} platform information",
-            ["current_version", "latest_version"],
+        # Info tracks key-value information, usually about a whole target.
+        self.service_info = Info(
+            f"{self.name}_service", f"{self.name.title()} platform information"
         )
 
-    def collect_metric(self) -> None:
-        self.service_info.labels(
-            current_version=self.service.get_current_version(),
-            latest_version=self.service.get_latest_version(),
+    def collect_info(self) -> None:
+        self.service_info.info(
+            {
+                "current_version": self.service.get_current_version(),
+                "latest_version": self.service.get_latest_version(),
+            }
         )
 
 
@@ -56,6 +57,6 @@ if __name__ == "__main__":
 
     start_http_server(8001)
     while True:
-        docker.collect_metric()
-        elasticsearch.collect_metric()
+        docker.collect_info()
+        elasticsearch.collect_info()
         time.sleep(30)
