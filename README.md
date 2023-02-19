@@ -1,5 +1,7 @@
 ## Infra X Exporter
-WIP
+*WIP*
+- [x] Docker
+- [x] Elasticsearch
 
 ## Architecture
 ![architecture](img/architecture.png)
